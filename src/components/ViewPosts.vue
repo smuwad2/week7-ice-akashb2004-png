@@ -25,21 +25,38 @@ export default {
         }
     },
     created() { // created is a hook that executes as soon as Vue instance is created
-        axios.get(`${this.baseUrl}/posts`)
-            .then(response => {
-                // this gets the data, which is an array, and pass the data to Vue instance's posts property
-                this.posts = response.data
-            })
-            .catch(error => {
-                this.posts = [{ entry: 'There was an error: ' + error.message }]
-            })
+        this.loadPosts()
     },
     methods: {
-        editPost(id) {
-            
+        loadPosts() {
+            axios.get(`${this.baseUrl}/posts`)
+                .then(response => {
+                    this.posts = response.data
+                })
+                .catch(error => {
+                    this.posts = [{ entry: 'There was an error: ' + error.message }]
+                })
         },
-        updatePost(event) {
-            
+        editPost(id) {
+            const p = this.posts.find(x => x.id === id)
+            if (!p) return
+                this.editPostId = id
+                this.entry = p.entry
+                this.mood = (p.mood || '').toString().toLowerCase()
+            this.showEditPost = true
+        },
+        updatePost() {
+            if (!this.editPostId) return
+            axios.post(`${this.baseUrl}/updatePost?id=${this.editPostId}`, {
+                entry: this.entry,
+                mood: this.mood
+            }).then(() => {
+                this.loadPosts()
+                this.showEditPost = false
+                this.editPostId = ''
+                this.entry = ''
+                this.mood = ''
+            }).catch(err => console.error(err))
         }
     }
 }
@@ -61,7 +78,7 @@ export default {
                     <td>{{ post.id }}</td>
                     <td>{{ post.entry }}</td>
                     <td>{{ post.mood }}</td>
-                    <td><button>Edit</button></td>
+                    <td><button @click="editPost(post.id)">Edit</button></td>
                 </tr>
             </tbody>
 
@@ -70,16 +87,16 @@ export default {
         <div id="editPost" v-if="showEditPost">
             <h3>Edit Post</h3>
             <div id="postContent" class="mx-3">
-                <form>
+                <form @submit.prevent="updatePost">
                     <div class="mb-3">
                         <label for="entry" class="form-label">Entry</label>
                         <textarea id="entry" class="form-control" v-model="entry" required></textarea>
                     </div>
                     <div class="mb-3">
                         <label for="mood" class="form-label">Mood</label>
-                        <select id="mood" class="form-select" v-model="mood" required>
-                            <option value="" disabled>Select Mood</option>
-                            <option v-for="mood in moods" :value="mood">{{ mood }}</option>
+                            <select id="mood" class="form-select" v-model="mood" required>
+                                <option value="" disabled>Select Mood</option>
+                                <option v-for="mood in moods" :value="mood.toLowerCase()">{{ mood }}</option>
                         </select>
                     </div>
                     <button type="submit" class="btn btn-primary">Update Post</button>
