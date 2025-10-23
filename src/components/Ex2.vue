@@ -4,18 +4,17 @@
         data() {
             return {
                 items: ['keyboard', 'mouse', 'iPhone', 'macbook', 'adapter'],
-                newItem: ''
+                input: ''
             }
+            
         },
-        methods : {
-            addItem(){
-                if (this.newItem.trim() !== ''){
-                    this.items.push(this.newItem)
-                    this.newItem = ''
-                }
+        methods: {
+            deleteItem(index){
+                this.items.splice(index, 1)
             },
-            removeItem(index){
-                this.items.splice(index,1)
+            addItem(){
+                this.items.push(this.input)
+                this.input = '';
             }
         }
     }
@@ -23,12 +22,14 @@
 
 <template>
 
-    <h2>Wendy's roster</h2>
-    <!-- TODO: Add Code here -->
-    <ul>
-      <li v-for="(item, index) in items" v-bind:key="item"> {{ item }} <button @click="removeItem(index)">Remove</button></li>  
-    </ul> 
-    <input v-model = "newItem" placeholder="Add new item" />
-    <button @click= "addItem">Add</button>
+    <h2>Shopping Cart</h2>
+    <!-- TODO: Add Code Here -->
+     
+     <ul>
+        <li v-for="(item, index) of items">
+            {{ item }} <button @click="deleteItem(index)">Delete!</button>
+        </li>
+     </ul>
+     <input v-model="input"/> <button @click="addItem()">Add!</button>
    
 </template>
