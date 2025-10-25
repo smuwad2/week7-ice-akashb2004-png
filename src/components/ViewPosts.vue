@@ -43,8 +43,7 @@ export default {
                 this.editPostId = id
                 this.entry = p.entry
                 this.mood = (p.mood || '').toString().toLowerCase()
-                this.mood = this.cap(p.mood)           
-                this.showEditPost = true
+            this.showEditPost = true
         },
         updatePost() {
             if (!this.editPostId) return
@@ -97,7 +96,7 @@ export default {
                         <label for="mood" class="form-label">Mood</label>
                             <select id="mood" class="form-select" v-model="mood" required>
                                 <option value="" disabled>Select Mood</option>
-                                <option v-for="mood in moods" :value="mood">{{ mood }}</option>
+                                <option v-for="mood in moods" :value="mood.toLowerCase()">{{ mood }}</option>
                         </select>
                     </div>
                     <button type="submit" class="btn btn-primary">Update Post</button>
